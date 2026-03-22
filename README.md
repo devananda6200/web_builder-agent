@@ -1,6 +1,6 @@
-# 🛠️ Coder Buddy
+# 🛠️ Web_Builder agent
 
-**Coder Buddy** is an AI-powered coding assistant built using **LangGraph**. It acts as a multi-agent development team (Planner, Architect, and Coder) to transform your natural language requests into complete, working projects.
+**Web_builder agent** is an AI-powered coding assistant built using **LangGraph**. It acts as a multi-agent development team (Planner, Architect, and Coder) to transform your natural language requests into complete, working projects.
 
 ---
 
