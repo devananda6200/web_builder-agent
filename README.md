@@ -30,4 +30,4 @@ uv run python main.py
 - Create a basic blog API in FastAPI with a SQLite database.
 
 ---
-Copyright©️ Codebasics Inc. All rights reserved.
+
