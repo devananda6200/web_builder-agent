@@ -1,4 +1,4 @@
-# 🛠️ Buldify
+# 🛠️ Buildify
 
 https://buildify-v2.onrender.com
 
