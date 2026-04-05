@@ -29,11 +29,19 @@ logging.basicConfig(
 
 # ── LLM with retry configuration ────────────────────────────────────
 MAX_RETRIES = 5
-INITIAL_BACKOFF = 6  # seconds – Groq's 429 message says ~5.3s
+INITIAL_BACKOFF = 4  # seconds
 
-llm = ChatGroq(
+# Best combo found through testing:
+#  - planner_llm: Llama 3.3 70B + json_schema → reliable structured output
+#  - coder_llm:   GPT-OSS 120B → only model with reliable tool calling on Groq free tier
+#                  max_retries=5 so the SDK auto-retries 429s inside react agent loops
+planner_llm = ChatGroq(
+    model="llama-3.3-70b-versatile",
+    max_retries=5,
+)
+coder_llm = ChatGroq(
     model="openai/gpt-oss-120b",
-    max_retries=0,  # we handle retries ourselves for better logging
+    max_retries=5,
 )
 
 
@@ -66,7 +74,7 @@ def planner_agent(state: dict) -> dict:
     user_prompt = state["user_prompt"]
     logger.info("🗺️  Planner – creating project plan…")
     resp = invoke_with_retry(
-        llm.with_structured_output(Plan).invoke,
+        planner_llm.with_structured_output(Plan, method="json_schema").invoke,
         planner_prompt(user_prompt),
     )
     if resp is None:
@@ -80,7 +88,7 @@ def architect_agent(state: dict) -> dict:
     plan: Plan = state["plan"]
     logger.info("📐 Architect – breaking plan into tasks…")
     resp = invoke_with_retry(
-        llm.with_structured_output(TaskPlan).invoke,
+        planner_llm.with_structured_output(TaskPlan, method="json_schema").invoke,
         architect_prompt(plan=plan.model_dump_json()),
     )
     if resp is None:
@@ -124,7 +132,7 @@ def coder_agent(state: dict) -> dict:
                    get_current_directory, run_cmd, search_files]
 
     # Build a fresh react agent for each step
-    react_agent = create_react_agent(llm, coder_tools)
+    react_agent = create_react_agent(coder_llm, coder_tools)
 
     # Retry the whole coder step on rate-limit
     invoke_with_retry(
@@ -137,7 +145,7 @@ def coder_agent(state: dict) -> dict:
 
     # Brief cooldown between steps to stay under TPM
     if step_num < total:
-        cooldown = 8  # seconds
+        cooldown = 10  # seconds – react agent makes multiple internal LLM calls per step
         logger.info(f"⏳ Cooling down {cooldown}s to stay within rate limits…")
         time.sleep(cooldown)
 
