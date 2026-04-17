@@ -1,6 +1,8 @@
-# 🛠️ Web Builder Agent
+# 🛠️ Buildify
 
-**Web Builder Agent** is an AI-powered coding assistant built using **LangGraph**. It acts as a multi-agent development team — **Planner**, **Architect**, and **Coder** — to transform your natural language requests into complete, working projects.
+https://buildify-v2.onrender.com
+
+**Buildify** is an AI-powered coding assistant built using **LangGraph**. It acts as a multi-agent development team - **Planner**, **Architect**, and **Coder**, to transform your natural language requests into complete, working projects.
 
 ---
 
